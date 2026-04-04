@@ -11,7 +11,7 @@
   },
   "keywords": [
     "ctpip", "causal-time", "proof-of-transformation", "coherence",
-    "eva-engine", "guardian-gates", "tkdf-256"
+    "lux-runtime", "guardian-gates", "tkdf-256"
   ],
   "author": "Érico Lisboa / Design Ledger PTY LTD <contact@designledger.co>",
   "license": "Apache-2.0",

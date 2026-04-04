@@ -7,7 +7,7 @@ License: Apache 2.0
 
 Contains:
 - Canonical constants (Book I-II)
-- EVA Engine (coherence validation)
+- LUX Runtime (coherence validation)
 - Guardian Gates (pre-validation enforcement)
 - TKDF-256 (causal key derivation)
 - Welford variance (calibration statistics)
@@ -96,7 +96,7 @@ class EVAInput:
 
 @dataclass
 class EVAResult:
-    """EVA Engine output."""
+    """LUX Runtime output."""
     gamma: float
     ctu: float
     delta_s: float
@@ -141,7 +141,7 @@ def compute_attention(gamma_variance: float, alpha: float = ALPHA_DEFAULT) -> fl
 
 def evaluate_eva(inp: EVAInput) -> EVAResult:
     """
-    Full EVA Engine validation. O(1) per PoT (Theorem 5).
+    Full LUX Runtime validation. O(1) per PoT (Theorem 5).
 
     Deterministic. Side-effect free. Non-participating. Binary.
     """

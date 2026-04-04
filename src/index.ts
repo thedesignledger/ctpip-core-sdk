@@ -5,7 +5,7 @@
  *
  * Contains:
  * - Canonical constants (Book I-II)
- * - EVA Engine (coherence validation)
+ * - LUX Runtime (coherence validation)
  * - Guardian Gates (pre-validation enforcement)
  * - TKDF-256 (causal key derivation)
  * - Welford variance (calibration statistics)
@@ -36,7 +36,7 @@ export {
 } from './constants';
 export type { TransformationDomain } from './constants';
 
-// EVA Engine
+// LUX Runtime
 export {
   computeGamma,
   computeCTU,

@@ -9,7 +9,7 @@ This SDK implements the canonical protocol specification from the R11 Sealed Uni
 | Module | Purpose | R11 Reference |
 |:-------|:--------|:-------------|
 | **Constants** | PHI, thresholds, Parity Law, domains | Book I S.I.6, Book II S.II.2 |
-| **EVA Engine** | Gamma computation, CTU generation, classification | Book II S.II.6, Book III S.III.A.3.3 |
+| **LUX Runtime** | Gamma computation, CTU generation, classification | Book II S.II.6, Book III S.III.A.3.3 |
 | **Guardian Gates** | Five-gate pre-validation enforcement | Book III S.III.A.3.4 |
 | **TKDF-256** | Causal key derivation from provenance inputs | SE-SPEC 2.1 Part XII |
 | **Welford** | Online variance for calibration fingerprinting | Book IV S.IV.A.3.00 |

@@ -1,8 +1,8 @@
 /**
- * EVA Engine - Coherence Validation
+ * LUX Runtime - Coherence Validation
  * Source: R11 Book II S.II.6, Book III S.III.A.3.3
  *
- * The EVA Engine is:
+ * The LUX Runtime is:
  *   - Deterministic (same inputs always produce same outputs)
  *   - Side-effect free (reads inputs, produces outputs, modifies nothing)
  *   - Non-participating (does not originate intent or hold preferences)
@@ -32,7 +32,7 @@ export interface EVAInput {
   tau: number;
 }
 
-/** EVA Engine output */
+/** LUX Runtime output */
 export interface EVAResult {
   /** Coherence Index [0, 1] */
   gamma: number;
@@ -126,7 +126,7 @@ export function computeAttention(
 }
 
 /**
- * Full EVA Engine validation.
+ * Full LUX Runtime validation.
  *
  * This is the atomic validation unit of CTP/IP.
  * Source: Book II S.II.6.1, Book III S.III.A.3.3
