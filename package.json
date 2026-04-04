@@ -1,0 +1,26 @@
+{
+  "name": "@ctpip/core",
+  "version": "1.0.0",
+  "description": "CTP/IP Core SDK - Portable physics engine for the Causal Time Protocol",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist", "src"],
+  "scripts": {
+    "build": "tsc",
+    "test": "node --test tests/"
+  },
+  "keywords": [
+    "ctpip", "causal-time", "proof-of-transformation", "coherence",
+    "eva-engine", "guardian-gates", "tkdf-256"
+  ],
+  "author": "Design Ledger PTY LTD <contact@designledger.co>",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thedesignledger/ctpip-core-sdk"
+  },
+  "homepage": "https://sealed.energy",
+  "engines": {
+    "node": ">=18"
+  }
+}
