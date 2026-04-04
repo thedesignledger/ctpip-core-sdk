@@ -100,9 +100,9 @@ Apache 2.0
 
 ## Links
 
-- Protocol: [sealed.energy](https://sealed.energy)
+- Protocol: [designledger.co](https://designledger.co)
 - Corpus: [DOI 10.5281/zenodo.19362640](https://doi.org/10.5281/zenodo.19362640)
 - Standards: [time.foundation](https://time.foundation)
 - Source: [github.com/thedesignledger](https://github.com/thedesignledger)
 
-Copyright 2025-2026 Design Ledger PTY LTD (ABN 50 669 856 339)
+Copyright 2025-2026 Érico Lisboa / Design Ledger PTY LTD (ABN 50 669 856 339)

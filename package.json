@@ -13,13 +13,13 @@
     "ctpip", "causal-time", "proof-of-transformation", "coherence",
     "eva-engine", "guardian-gates", "tkdf-256"
   ],
-  "author": "Design Ledger PTY LTD <contact@designledger.co>",
+  "author": "Érico Lisboa / Design Ledger PTY LTD <contact@designledger.co>",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/thedesignledger/ctpip-core-sdk"
   },
-  "homepage": "https://sealed.energy",
+  "homepage": "https://designledger.co",
   "engines": {
     "node": ">=18"
   }
