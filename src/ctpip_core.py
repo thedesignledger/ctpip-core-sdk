@@ -127,11 +127,11 @@ def classify(gamma: float) -> Classification:
     return Classification.REJECTED
 
 
-def compute_temporal_debt(gamma: float, E: float) -> float:
-    """D = phi * (Gamma_min - Gamma) * E. Book II S.II.7.2."""
+def compute_temporal_debt(gamma: float, V: float, E: float, A: float) -> float:
+    """D = (V * E * A) / (Gamma + epsilon_0). V10 canonical."""
     if gamma >= GAMMA_MIN:
         return 0.0
-    return PHI * (GAMMA_MIN - gamma) * E
+    return (V * E * A) / (gamma + EPSILON_0)
 
 
 def compute_attention(gamma_variance: float, alpha: float = ALPHA_DEFAULT) -> float:
@@ -155,7 +155,7 @@ def evaluate_eva(inp: EVAInput) -> EVAResult:
     classification = classify(gamma)
     verdict = Verdict.VALID if (gamma >= GAMMA_MIN and delta_s > 0) else Verdict.INVALID
     ctu = compute_ctu(E, V, A) if verdict == Verdict.VALID else 0.0
-    debt = compute_temporal_debt(gamma, E) if verdict == Verdict.INVALID else 0.0
+    debt = compute_temporal_debt(gamma, V, E, A) if verdict == Verdict.INVALID else 0.0
 
     return EVAResult(
         gamma=gamma, ctu=ctu, delta_s=delta_s,

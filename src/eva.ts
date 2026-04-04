@@ -104,9 +104,9 @@ export function classify(gamma: number): Classification {
  *
  * Only fires when Gamma < Gamma_min.
  */
-export function computeTemporalDebt(gamma: number, E: number): number {
+export function computeTemporalDebt(gamma: number, V: number, E: number, A: number): number {
   if (gamma >= GAMMA_MIN) return 0;
-  return PHI * (GAMMA_MIN - gamma) * E;
+  return (V * E * A) / (gamma + EPSILON_0);
 }
 
 /**
@@ -162,7 +162,7 @@ export function evaluateEVA(input: EVAInput): EVAResult {
 
   // Temporal debt (only on invalid)
   const temporalDebt = verdict === Verdict.INVALID
-    ? computeTemporalDebt(gamma, E)
+const debt = computeTemporalDebt(gamma, V, E, A);
     : 0;
 
   return { gamma, ctu, deltaS, classification, verdict, temporalDebt };
