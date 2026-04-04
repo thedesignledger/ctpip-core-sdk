@@ -9,7 +9,7 @@ This SDK implements the canonical protocol specification from the R11 Sealed Uni
 | Module | Purpose | R11 Reference |
 |:-------|:--------|:-------------|
 | **Constants** | PHI, thresholds, Parity Law, domains | Book I S.I.6, Book II S.II.2 |
-| **LUX Runtime** | Gamma computation, CTU generation, classification | Book II S.II.6, Book III S.III.A.3.3 |
+| **LUX Runtime** | coherence computation, CTU generation, classification | Book II S.II.6, Book III S.III.A.3.3 |
 | **Guardian Gates** | Five-gate pre-validation enforcement | Book III S.III.A.3.4 |
 | **TKDF-256** | Causal key derivation from provenance inputs | SE-SPEC 2.1 Part XII |
 | **Welford** | Online variance for calibration fingerprinting | Book IV S.IV.A.3.00 |
@@ -81,9 +81,9 @@ Time is generated only when irreversible transformation occurs under declared in
 | Constant | Value | Source |
 |:---------|:------|:-------|
 | PHI | 1.618033988749895 | Golden Ratio |
-| GAMMA_MIN | 0.70 | SEED threshold (Carnot) |
-| GAMMA_BLOOM | 0.8187 | BLOOM threshold (Landauer) |
-| GAMMA_ROOT | 0.95 | ROOT threshold (relativistic) |
+| GAMMA_MIN | 0.70 | SEED coherence threshold (Carnot) |
+| GAMMA_BLOOM | 0.8187 | BLOOM coherence threshold (Landauer) |
+| GAMMA_ROOT | 0.95 | ROOT coherence threshold (relativistic) |
 | EPSILON_0 | 1.0 | Stability constant |
 | PARITY_BTC | 0.021 | 1 FLUX = 0.021 BTC |
 
