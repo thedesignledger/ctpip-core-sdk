@@ -1,18 +1,32 @@
 # @ctpip/core
 
-Portable physics engine for the **Causal Time Protocol / Intentional Processing (CTP/IP)**.
+> **Non-authoritative reference.** This package cannot produce a valid
+> Seal, mint CTU, or sign on-chain transformations. It exposes the
+> calibration math and TKDF-256 algorithm of CTP/IP for UI preview,
+> local development, agent verification, and protocol study only.
+>
+> **Canonical authority lives on Solana mainnet:**
+> - Program: `YvxS7U37b5369xzNXt1EEuXjEkp65Ngcq9NsGUr3bmZ`
+> - LUX Runtime Oracle PDA: `8QTfNKF66N2uov4MfduioEjfaA6Hi8YBe8Lztoyxnzrk`
+> - FLUX Mint: `Dun6pP3Xsx9CWetKj3zd8iqHz8EYC1amYSeJKG8JzQ9n`
+>
+> Any value produced by this SDK is a local estimate or a verifiable
+> algorithm output only - never a canonical Seal.
 
-This SDK implements the canonical protocol specification from the R11 Sealed Unified Corpus (DOI: 10.5281/zenodo.19362640). Available in TypeScript and Python.
+Non-authoritative reference SDK for the **Causal Time Protocol / Intentional Processing (CTP/IP)**.
+
+Canonical specification: CTP/IP (R2 / operative R22). Historical R1 record at DOI [10.5281/zenodo.18795109](https://doi.org/10.5281/zenodo.18795109). R2 publication forthcoming.
+
+Available in TypeScript and Python.
 
 ## What This Contains
 
-| Module | Purpose | R11 Reference |
-|:-------|:--------|:-------------|
-| **Constants** | PHI, thresholds, Parity Law, domains | Book I S.I.6, Book II S.II.2 |
-| **LUX Runtime** | coherence computation, CTU generation, classification | Book II S.II.6, Book III S.III.A.3.3 |
-| **Guardian Gates** | Five-gate pre-validation enforcement | Book III S.III.A.3.4 |
-| **TKDF-256** | Causal key derivation from provenance inputs | SE-SPEC 2.1 Part XII |
-| **Welford** | Online variance for calibration fingerprinting | Book IV S.IV.A.3.00 |
+| Module | Purpose |
+|:-------|:--------|
+| **Constants** | PHI, thresholds, Parity Law, domains (reference only) |
+| **Coherence Estimation** | Local gamma estimation, classification preview, calibration check |
+| **TKDF-256** | Causal key derivation from provenance inputs (open public standard) |
+| **Welford** | Online variance for calibration fingerprinting |
 
 ## Install
 
@@ -27,45 +41,35 @@ pip install ctpip-core
 ## Quick Start (TypeScript)
 
 ```typescript
-import { evaluateEVA, evaluateGates, Classification, Verdict } from '@ctpip/core';
+import { estimateLocalCoherence, CalibrationCheck, Classification } from '@ctpip/core';
 
-// Compute coherence
-const result = evaluateEVA({ E: 0.85, V: 0.90, A: 0.88, tau: 0 });
-console.log(result.gamma);          // 0.6732
-console.log(result.classification); // SEED
-console.log(result.verdict);        // VALID
-console.log(result.ctu);            // 1.0929...
+// Compute a LOCAL coherence estimate (not a Seal)
+const estimate = estimateLocalCoherence({ E: 0.85, V: 0.90, A: 0.88, tau: 0 });
 
-// Full gate evaluation
-const gates = evaluateGates({
-  intentHash: 'a'.repeat(64),
-  evidenceHash: 'b'.repeat(64),
-  anchors: [{ anchorId: '1', anchorType: 'wallet', anchorStatus: 'Linked' }],
-  eva: { E: 0.85, V: 0.90, A: 0.88, tau: 0 },
-  aiOriginated: false,
-});
-console.log(gates.allPassed); // true
+console.log(estimate.gammaEstimate);        // 0.6732 (local preview)
+console.log(estimate.classificationPreview); // SEED (band label)
+console.log(estimate.calibrationCheck);      // PASSES_LOCAL_CALIBRATION
+
+// Note: this is a local estimate. To produce a canonical Seal,
+// submit a transformation to the LUX Runtime Oracle PDA on Solana
+// mainnet via the canonical authority.
 ```
 
 ## Quick Start (Python)
 
 ```python
-from ctpip_core import evaluate_eva, evaluate_gates, EVAInput, CausalAnchor
+from ctpip_core import estimate_local_coherence, CoherenceInput, CalibrationCheck
 
-# Compute coherence
-result = evaluate_eva(EVAInput(E=0.85, V=0.90, A=0.88, tau=0))
-print(result.gamma)           # 0.6732
-print(result.classification)  # SEED
-print(result.verdict)         # VALID
+# Compute a LOCAL coherence estimate (not a Seal)
+estimate = estimate_local_coherence(CoherenceInput(E=0.85, V=0.90, A=0.88, tau=0))
 
-# Full gate evaluation
-gates = evaluate_gates(
-    intent_hash='a' * 64,
-    evidence_hash='b' * 64,
-    anchors=[CausalAnchor('1', 'wallet', 'Linked')],
-    eva_input=EVAInput(E=0.85, V=0.90, A=0.88),
-)
-print(gates.all_passed)  # True
+print(estimate.gamma_estimate)         # 0.6732 (local preview)
+print(estimate.classification_preview) # SEED (band label)
+print(estimate.calibration_check)      # PASSES_LOCAL_CALIBRATION
+
+# Note: this is a local estimate. To produce a canonical Seal,
+# submit a transformation to the LUX Runtime Oracle PDA on Solana
+# mainnet via the canonical authority.
 ```
 
 ## The One Law
@@ -76,10 +80,12 @@ T = Delta-Sigma-Zero-Gamma
 
 Time is generated only when irreversible transformation occurs under declared intent, measurable energetic cost, and validated coherence.
 
-## Canonical Constants
+## Protocol Constants (Reference Only)
 
-| Constant | Value | Source |
-|:---------|:------|:-------|
+These constants are exposed for reference and local calibration. Enforcement of protocol invariants -- including the AI Boundary (w_AI = 0), EVA Lock, Anti-Circularity, and Binary Validation -- happens on-chain at the canonical authority. This SDK does not and cannot enforce them.
+
+| Constant | Value | Description |
+|:---------|:------|:------------|
 | PHI | 1.618033988749895 | Golden Ratio |
 | GAMMA_MIN | 0.70 | SEED coherence threshold (Carnot) |
 | GAMMA_BLOOM | 0.8187 | BLOOM coherence threshold (Landauer) |
@@ -87,12 +93,13 @@ Time is generated only when irreversible transformation occurs under declared in
 | EPSILON_0 | 1.0 | Stability constant |
 | PARITY_BTC | 0.021 | 1 FLUX = 0.021 BTC |
 
-## Level 0 Invariants (Never Violate)
+## TKDF-256 - Causal Key Derivation Function
 
-1. **EVA Lock** - No CTU without EVA validation
-2. **Anti-Circularity** - No system validates its own output
-3. **Binary Validation** - VALID or INVALID only
-4. **AI Boundary** - w_AI = 0 (AI earns zero CTU weight)
+TKDF-256 is the open standard cryptographic primitive used by CTP/IP to bind an artifact to its causal antecedents. Anyone can compute a TKDF-256 key from public provenance inputs and verify it independently. Only the LUX Runtime Oracle PDA can produce a valid Seal under the algorithm.
+
+This SDK ships a reference implementation in TypeScript and Python. Test vectors are in `tests/tkdf256-vectors.json`.
+
+The algorithm specification is in the canonical R2 corpus (Book III).
 
 ## License
 
@@ -100,8 +107,9 @@ Apache 2.0
 
 ## Links
 
-- Protocol: [designledger.co](https://designledger.co)
-- Corpus: [DOI 10.5281/zenodo.19362640](https://doi.org/10.5281/zenodo.19362640)
+- Product: [sealed.energy](https://sealed.energy)
+- Commercial: [designledger.co](https://designledger.co)
+- Historical R1 corpus: [DOI 10.5281/zenodo.18795109](https://doi.org/10.5281/zenodo.18795109)
 - Standards: [time.foundation](https://time.foundation)
 - Source: [github.com/thedesignledger](https://github.com/thedesignledger)
 
