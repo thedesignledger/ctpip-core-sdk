@@ -1,19 +1,19 @@
 {
   "name": "@ctpip/core",
-  "version": "1.0.0",
-  "description": "CTP/IP Core SDK - Portable physics engine for the Causal Time Protocol",
+  "version": "0.1.0",
+  "description": "CTP/IP Core SDK - Non-authoritative reference for the Causal Time Protocol. Coherence calibration math, TKDF-256 reference implementation. TypeScript and Python.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": ["dist", "src"],
   "scripts": {
     "build": "tsc",
-    "test": "node --test tests/"
+    "test": "node --test tests/coherence.test.js tests/tkdf256.test.js tests/naming-audit.test.js"
   },
   "keywords": [
-    "ctpip", "causal-time", "proof-of-transformation", "coherence",
-    "lux-runtime", "guardian-gates", "tkdf-256"
+    "ctpip", "causal-time", "coherence-preview", "tkdf-256",
+    "non-authoritative", "reference-implementation", "calibration"
   ],
-  "author": "Érico Lisboa / Design Ledger PTY LTD <contact@designledger.co>",
+  "author": "Érico Lisboa <contact@designledger.co>",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
