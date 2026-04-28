@@ -1,16 +1,21 @@
 /**
- * CTP/IP Core SDK
+ * @ctpip/core - Non-Authoritative Reference SDK
  *
- * Portable physics engine for the Causal Time Protocol.
+ * This package cannot produce a valid Seal, mint CTU, or sign
+ * on-chain transformations. It exposes the calibration math and
+ * TKDF-256 algorithm of CTP/IP for UI preview, local development,
+ * agent verification, and protocol study only.
  *
- * Contains:
- * - Canonical constants (Book I-II)
- * - LUX Runtime (coherence validation)
- * - Guardian Gates (pre-validation enforcement)
- * - TKDF-256 (causal key derivation)
- * - Welford variance (calibration statistics)
+ * Canonical authority lives on Solana mainnet:
+ * - Program: YvxS7U37b5369xzNXt1EEuXjEkp65Ngcq9NsGUr3bmZ
+ * - LUX Runtime Oracle PDA: 8QTfNKF66N2uov4MfduioEjfaA6Hi8YBe8Lztoyxnzrk
+ * - FLUX Mint: Dun6pP3Xsx9CWetKj3zd8iqHz8EYC1amYSeJKG8JzQ9n
  *
- * Source: R11 Sealed Unified Corpus (DOI: 10.5281/zenodo.19362640)
+ * Canonical specification: CTP/IP (R2 / operative R22).
+ * Historical R1 record at DOI 10.5281/zenodo.18795109.
+ * R2 publication forthcoming.
+ *
+ * Copyright 2025-2026 Erico Lisboa / Design Ledger PTY LTD
  * License: Apache 2.0
  *
  * @module @ctpip/core
@@ -32,26 +37,21 @@ export {
   GENESIS_FEE_USD,
   TRANSFORMATION_DOMAINS,
   Classification,
-  Verdict,
+  CalibrationCheck,
 } from './constants';
 export type { TransformationDomain } from './constants';
 
-// LUX Runtime
+// Coherence Estimation (local, non-authoritative)
 export {
   computeGamma,
-  computeCTU,
   classify,
   computeTemporalDebt,
   computeAttention,
-  evaluateEVA,
-} from './eva';
-export type { EVAInput, EVAResult } from './eva';
+  estimateLocalCoherence,
+} from './coherence';
+export type { CoherenceInput, LocalCoherenceEstimate } from './coherence';
 
-// Guardian Gates
-export { evaluateGates } from './gates';
-export type { CausalAnchor, SealAttempt, GateResult, GateEvaluation } from './gates';
-
-// TKDF-256
+// TKDF-256 (open public-standard cryptographic primitive)
 export {
   TKDF_SALTS,
   deriveTKDF256,
@@ -72,4 +72,4 @@ export {
   calibrationReady,
   calibrationFingerprint,
 } from './welford';
-export type { WelfordState, EVACalibration } from './welford';
+export type { WelfordState, CoherenceCalibration } from './welford';
