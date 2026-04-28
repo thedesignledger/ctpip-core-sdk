@@ -1,6 +1,5 @@
 /**
  * Welford Online Variance - Calibration Statistics
- * Source: R11 Book IV S.IV.A.3.00 (10-Cycle Calibration Enrollment)
  *
  * Numerically stable online algorithm for computing running
  * mean and variance. Used to establish operator's behavioural
@@ -9,6 +8,12 @@
  * Reference: Welford, B. P. (1962). "Note on a method for
  * calculating corrected sums of squares and products."
  * Technometrics, 4(3), 419-420.
+ *
+ * Canonical specification: CTP/IP (R2 / operative R22).
+ * Historical R1 record at DOI 10.5281/zenodo.18795109.
+ *
+ * Copyright 2025-2026 Erico Lisboa / Design Ledger PTY LTD
+ * License: Apache 2.0
  */
 
 export interface WelfordState {
@@ -66,10 +71,10 @@ export function welfordStdDev(state: WelfordState): number {
 }
 
 /**
- * Multi-channel Welford tracker for E, V, A calibration.
- * Tracks independent statistics for each EVA channel.
+ * Multi-channel Welford tracker for coherence calibration.
+ * Tracks independent statistics for each input channel.
  */
-export interface EVACalibration {
+export interface CoherenceCalibration {
   E: WelfordState;
   V: WelfordState;
   A: WelfordState;
@@ -78,9 +83,9 @@ export interface EVACalibration {
 }
 
 /**
- * Create a fresh EVA calibration tracker.
+ * Create a fresh coherence calibration tracker.
  */
-export function calibrationInit(): EVACalibration {
+export function calibrationInit(): CoherenceCalibration {
   return {
     E: welfordInit(),
     V: welfordInit(),
@@ -94,12 +99,12 @@ export function calibrationInit(): EVACalibration {
  * Record one calibration cycle.
  */
 export function calibrationRecord(
-  cal: EVACalibration,
+  cal: CoherenceCalibration,
   E: number,
   V: number,
   A: number,
   gamma: number
-): EVACalibration {
+): CoherenceCalibration {
   return {
     E: welfordUpdate(cal.E, E),
     V: welfordUpdate(cal.V, V),
@@ -111,16 +116,16 @@ export function calibrationRecord(
 
 /**
  * Check if calibration enrollment is complete.
- * Requires minimum 10 cycles per Book IV S.IV.A.3.00.
+ * Requires minimum 10 cycles.
  */
-export function calibrationReady(cal: EVACalibration): boolean {
+export function calibrationReady(cal: CoherenceCalibration): boolean {
   return cal.cycleCount >= 10;
 }
 
 /**
  * Get calibration fingerprint summary.
  */
-export function calibrationFingerprint(cal: EVACalibration) {
+export function calibrationFingerprint(cal: CoherenceCalibration) {
   return {
     cycles: cal.cycleCount,
     ready: calibrationReady(cal),
