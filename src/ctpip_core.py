@@ -1,47 +1,57 @@
 """
-CTP/IP Core SDK - Python Implementation
+CTP/IP Core SDK - Python Implementation (Non-Authoritative Reference)
 
-Portable physics engine for the Causal Time Protocol.
-Source: R11 Sealed Unified Corpus (DOI: 10.5281/zenodo.19362640)
+This package cannot produce a valid Seal, mint CTU, or sign on-chain
+transformations. It exposes the calibration math and TKDF-256 algorithm
+of CTP/IP for UI preview, local development, agent verification, and
+protocol study only.
+
+Canonical authority lives on Solana mainnet:
+  - Program: YvxS7U37b5369xzNXt1EEuXjEkp65Ngcq9NsGUr3bmZ
+  - LUX Runtime Oracle PDA: 8QTfNKF66N2uov4MfduioEjfaA6Hi8YBe8Lztoyxnzrk
+  - FLUX Mint: Dun6pP3Xsx9CWetKj3zd8iqHz8EYC1amYSeJKG8JzQ9n
+
+Canonical specification: CTP/IP (R2 / operative R22).
+Historical R1 record at DOI 10.5281/zenodo.18795109.
+R2 publication forthcoming.
+
+Copyright 2025-2026 Ãrico Lisboa / Design Ledger PTY LTD
 License: Apache 2.0
-
-Contains:
-- Canonical constants (Book I-II)
-- LUX Runtime (coherence validation)
-- Guardian Gates (pre-validation enforcement)
-- TKDF-256 (causal key derivation)
-- Welford variance (calibration statistics)
 """
 
 import hashlib
 import math
-import re
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional
 
 # ===========================================================================
-# CANONICAL CONSTANTS (IMMUTABLE)
-# Source: R11 Book I S.I.6, Book II S.II.2
+# PROTOCOL CONSTANTS (REFERENCE ONLY)
+#
+# These constants are exposed for reference and local calibration.
+# Enforcement of protocol invariants -- including the AI Boundary
+# (w_AI = 0), EVA Lock, Anti-Circularity, and Binary Validation --
+# happens on-chain at the canonical authority. This SDK does not
+# and cannot enforce them.
 # ===========================================================================
 
 PHI = 1.618033988749895
-"""Golden Ratio - temporal scaling constant (Book I S.I.6.2)"""
+"""Golden Ratio - temporal scaling constant"""
 
 LAMBDA_LUX = 8.98755178736818e16
-"""Lux Limit - upper bound of causal energy density (Book I S.I.6.1)"""
+"""Lux Limit - upper bound of causal energy density"""
 
 EPSILON_0 = 1.0
-"""Stability constant - division-by-zero guard (Book II S.II.4.1)"""
+"""Stability constant - division-by-zero guard"""
 
 GAMMA_MIN = 0.70
-"""SEED threshold - Carnot efficiency limit (Book II S.II.4.2)"""
+"""SEED threshold - Carnot efficiency limit"""
 
 GAMMA_BLOOM = 0.8187
-"""BLOOM threshold - Landauer erasure limit (Book II S.II.4.2)"""
+"""BLOOM threshold - Landauer erasure limit"""
 
 GAMMA_ROOT = 0.95
-"""ROOT threshold - relativistic coherence (Book II S.II.4.2)"""
+"""ROOT threshold - relativistic coherence"""
 
 ALPHA_DEFAULT = 8.0
 """Default ALPHA for attention computation"""
@@ -69,25 +79,38 @@ TRANSFORMATION_DOMAINS = (
 
 
 class Classification(Enum):
+    """
+    Coherence classification tiers.
+    These are band labels for UI preview only.
+    Canonical classification happens on-chain at the LUX Runtime Oracle PDA.
+    """
     REJECTED = "REJECTED"
     SEED = "SEED"
     BLOOM = "BLOOM"
     ROOT = "ROOT"
 
 
-class Verdict(Enum):
-    VALID = "VALID"
-    INVALID = "INVALID"
+class CalibrationCheck(Enum):
+    """
+    Local calibration check result.
+    This is NOT a canonical verdict. Canonical verdicts are issued
+    on-chain by the LUX Runtime Oracle PDA only.
+    """
+    PASSES_LOCAL_CALIBRATION = "PASSES_LOCAL_CALIBRATION"
+    FAILS_LOCAL_CALIBRATION = "FAILS_LOCAL_CALIBRATION"
 
 
 # ===========================================================================
-# EVA ENGINE
-# Source: Book II S.II.6, Book III S.III.A.3.3
+# COHERENCE ESTIMATION (LOCAL, NON-AUTHORITATIVE)
+#
+# CTU is minted on-chain by LUX Runtime only. This SDK does not
+# produce CTU. The gamma estimate is for local UI preview and
+# developer calibration only.
 # ===========================================================================
 
 @dataclass
-class EVAInput:
-    """Raw EVA inputs."""
+class CoherenceInput:
+    """Raw coherence inputs."""
     E: float  # Energy commitment [0, 1]
     V: float  # Vector alignment [0, 1]
     A: float  # Attention persistence [0, 1]
@@ -95,29 +118,29 @@ class EVAInput:
 
 
 @dataclass
-class EVAResult:
-    """LUX Runtime output."""
-    gamma: float
-    ctu: float
+class LocalCoherenceEstimate:
+    """
+    Local coherence estimate output (non-authoritative).
+
+    CTU is minted on-chain by LUX Runtime only. This SDK does not
+    produce CTU. The gamma estimate is for local UI preview and
+    developer calibration only.
+    """
+    gamma_estimate: float
     delta_s: float
-    classification: Classification
-    verdict: Verdict
-    temporal_debt: float
+    classification_preview: Classification
+    calibration_check: CalibrationCheck
+    temporal_debt_estimate: float
 
 
-def compute_gamma(inp: EVAInput) -> float:
-    """Gamma = (E * V * A) / (tau + epsilon_0). Book I S.I.7.1."""
+def compute_gamma(inp: CoherenceInput) -> float:
+    """Gamma = (E * V * A) / (tau + epsilon_0)."""
     raw = (inp.E * inp.V * inp.A) / (inp.tau + EPSILON_0)
     return min(1.0, max(0.0, raw))
 
 
-def compute_ctu(E: float, V: float, A: float) -> float:
-    """CTU = phi * E * V * A. Book II S.II.5.1."""
-    return PHI * E * V * A
-
-
 def classify(gamma: float) -> Classification:
-    """Classify gamma into coherence tiers. Book II S.II.4.2."""
+    """Classify gamma into coherence tiers (band labels for UI preview)."""
     if gamma >= GAMMA_ROOT:
         return Classification.ROOT
     if gamma >= GAMMA_BLOOM:
@@ -128,140 +151,64 @@ def classify(gamma: float) -> Classification:
 
 
 def compute_temporal_debt(gamma: float, V: float, E: float, A: float) -> float:
-    """D = (V * E * A) / (Gamma + epsilon_0). V10 canonical."""
+    """D = (V * E * A) / (Gamma + epsilon_0)."""
     if gamma >= GAMMA_MIN:
         return 0.0
     return (V * E * A) / (gamma + EPSILON_0)
 
 
 def compute_attention(gamma_variance: float, alpha: float = ALPHA_DEFAULT) -> float:
-    """A = 1 / (1 + alpha * sigma^2). Book VI S.VI.B.3."""
+    """A = 1 / (1 + alpha * sigma^2)."""
     return 1.0 / (1.0 + alpha * gamma_variance)
 
 
-def evaluate_eva(inp: EVAInput) -> EVAResult:
+def estimate_local_coherence(inp: CoherenceInput) -> LocalCoherenceEstimate:
     """
-    Full LUX Runtime validation. O(1) per PoT (Theorem 5).
+    Estimate local coherence (non-authoritative).
 
-    Deterministic. Side-effect free. Non-participating. Binary.
+    This is the local preview equivalent of the on-chain LUX Runtime
+    validation. It produces estimates only -- never canonical Seals
+    or CTU.
     """
     E = min(1.0, max(0.0, inp.E))
     V = min(1.0, max(0.0, inp.V))
     A = min(1.0, max(0.0, inp.A))
     tau = max(0.0, inp.tau)
 
-    gamma = compute_gamma(EVAInput(E, V, A, tau))
-    delta_s = 1.0 - gamma
-    classification = classify(gamma)
-    verdict = Verdict.VALID if (gamma >= GAMMA_MIN and delta_s > 0) else Verdict.INVALID
-    ctu = compute_ctu(E, V, A) if verdict == Verdict.VALID else 0.0
-    debt = compute_temporal_debt(gamma, V, E, A) if verdict == Verdict.INVALID else 0.0
+    gamma_estimate = compute_gamma(CoherenceInput(E, V, A, tau))
+    delta_s = 1.0 - gamma_estimate
+    classification_preview = classify(gamma_estimate)
 
-    return EVAResult(
-        gamma=gamma, ctu=ctu, delta_s=delta_s,
-        classification=classification, verdict=verdict, temporal_debt=debt,
+    calibration_check = (
+        CalibrationCheck.PASSES_LOCAL_CALIBRATION
+        if (gamma_estimate >= GAMMA_MIN and delta_s > 0)
+        else CalibrationCheck.FAILS_LOCAL_CALIBRATION
+    )
+
+    temporal_debt_estimate = (
+        compute_temporal_debt(gamma_estimate, V, E, A)
+        if calibration_check == CalibrationCheck.FAILS_LOCAL_CALIBRATION
+        else 0.0
+    )
+
+    return LocalCoherenceEstimate(
+        gamma_estimate=gamma_estimate,
+        delta_s=delta_s,
+        classification_preview=classification_preview,
+        calibration_check=calibration_check,
+        temporal_debt_estimate=temporal_debt_estimate,
     )
 
 
 # ===========================================================================
-# GUARDIAN GATES
-# Source: Book III S.III.A.3.4
-# ===========================================================================
-
-SHA256_RE = re.compile(r"^[a-f0-9]{64}$", re.IGNORECASE)
-
-
-@dataclass
-class CausalAnchor:
-    anchor_id: str
-    anchor_type: str
-    anchor_status: str  # "Linked", "Revoked", "Expired"
-    anchor_gamma: Optional[float] = None
-
-
-@dataclass
-class GateResult:
-    gate: str
-    order: int
-    passed: bool
-    reason: Optional[str] = None
-
-
-@dataclass
-class GateEvaluation:
-    all_passed: bool
-    gates: list
-    first_failure: Optional[GateResult]
-    gamma: float
-    clamped_gamma: float
-
-
-def evaluate_gates(
-    intent_hash: str,
-    evidence_hash: str,
-    anchors: list,
-    eva_input: EVAInput,
-    ai_originated: bool = False,
-) -> GateEvaluation:
-    """Evaluate all Five Guardian Gates. Cheapest first. All must pass."""
-    gates = []
-
-    # Pre-gate: AI Boundary
-    if ai_originated:
-        g = GateResult("AI Boundary", 0, False, "AI cannot originate IntentSig (w_AI = 0)")
-        gates.append(g)
-        return GateEvaluation(False, gates, g, 0.0, 0.0)
-
-    # Gate 1: Intent
-    g1 = GateResult("Intent", 1, bool(SHA256_RE.match(intent_hash)),
-                     None if SHA256_RE.match(intent_hash) else "IntentSig hash missing or malformed")
-    gates.append(g1)
-    if not g1.passed:
-        return GateEvaluation(False, gates, g1, 0.0, 0.0)
-
-    # Gate 2: Evidence
-    g2 = GateResult("Evidence", 2, bool(SHA256_RE.match(evidence_hash)),
-                     None if SHA256_RE.match(evidence_hash) else "Evidence hash missing or malformed")
-    gates.append(g2)
-    if not g2.passed:
-        return GateEvaluation(False, gates, g2, 0.0, 0.0)
-
-    # Gate 3: Anchors
-    active = [a for a in anchors if a.anchor_status == "Linked"]
-    g3 = GateResult("Anchors", 3, len(active) >= 1,
-                     None if len(active) >= 1 else "No active CausalAnchor linked")
-    gates.append(g3)
-    if not g3.passed:
-        return GateEvaluation(False, gates, g3, 0.0, 0.0)
-
-    # Compute Gamma
-    raw_gamma = compute_gamma(eva_input)
-
-    # Anchor Coherence Clamp
-    anchor_gammas = [a.anchor_gamma for a in active if a.anchor_gamma is not None]
-    clamped = min(raw_gamma, min(anchor_gammas)) if anchor_gammas else raw_gamma
-
-    # Gate 4: Coherence
-    g4 = GateResult("Coherence", 4, clamped >= GAMMA_MIN,
-                     None if clamped >= GAMMA_MIN else f"Gamma {clamped:.4f} below SEED {GAMMA_MIN}")
-    gates.append(g4)
-    if not g4.passed:
-        return GateEvaluation(False, gates, g4, raw_gamma, clamped)
-
-    # Gate 5: Entropy
-    delta_s = 1.0 - clamped
-    g5 = GateResult("Entropy", 5, delta_s > 0,
-                     None if delta_s > 0 else "Gamma = 1.0 is thermodynamically impossible")
-    gates.append(g5)
-    if not g5.passed:
-        return GateEvaluation(False, gates, g5, raw_gamma, clamped)
-
-    return GateEvaluation(True, gates, None, raw_gamma, clamped)
-
-
-# ===========================================================================
-# TKDF-256
-# Source: The Symbolic Economy Part XII
+# TKDF-256 - Transformation Key Derivation Function
+#
+# Open public-standard cryptographic primitive. Anyone can compute a
+# TKDF-256 key from public provenance inputs and verify it independently.
+# Only the LUX Runtime Oracle PDA can produce a valid Seal under the
+# algorithm.
+#
+# Algorithm specification: CTP/IP canonical R2 corpus (Book III).
 # ===========================================================================
 
 TKDF_SALTS = {d: f"CTPIP:TKDF256:{d.upper()}:V1" for d in TRANSFORMATION_DOMAINS}
@@ -280,7 +227,12 @@ def derive_tkdf256(
     tpnc: int,
     domain: str,
 ) -> str:
-    """Derive a TKDF-256 causal key."""
+    """
+    Derive a TKDF-256 causal key.
+
+    Note: this produces verifiable algorithm output only. A valid Seal
+    requires signing by the LUX Runtime Oracle PDA on Solana mainnet.
+    """
     salt = TKDF_SALTS.get(domain)
     if not salt:
         raise ValueError(f"Unknown transformation domain: {domain}")
@@ -289,7 +241,7 @@ def derive_tkdf256(
 
 
 def derive_seal_hash(evidence_hash: str, intent_hash: str, gamma: float, timestamp: str, operator_id: str) -> str:
-    """Derive seal hash. Book III S.III.A.4.1."""
+    """Derive seal hash (verifiable algorithm output only)."""
     preimage = evidence_hash + intent_hash + f"{gamma:.6f}" + timestamp + operator_id
     return sha256_hex(preimage)
 
@@ -301,7 +253,6 @@ def derive_intent_sig(fingerprint: str, user_id: str, tpnc: int) -> str:
 
 # ===========================================================================
 # WELFORD VARIANCE / CALIBRATION
-# Source: Book IV S.IV.A.3.00
 # ===========================================================================
 
 @dataclass
@@ -328,15 +279,16 @@ class WelfordState:
 
 
 @dataclass
-class EVACalibration:
+class CoherenceCalibration:
+    """Multi-channel Welford tracker for coherence calibration."""
     E: WelfordState = field(default_factory=WelfordState)
     V: WelfordState = field(default_factory=WelfordState)
     A: WelfordState = field(default_factory=WelfordState)
     gamma: WelfordState = field(default_factory=WelfordState)
     cycle_count: int = 0
 
-    def record(self, E: float, V: float, A: float, gamma: float) -> "EVACalibration":
-        return EVACalibration(
+    def record(self, E: float, V: float, A: float, gamma: float) -> "CoherenceCalibration":
+        return CoherenceCalibration(
             E=self.E.update(E), V=self.V.update(V),
             A=self.A.update(A), gamma=self.gamma.update(gamma),
             cycle_count=self.cycle_count + 1,
@@ -344,7 +296,7 @@ class EVACalibration:
 
     @property
     def ready(self) -> bool:
-        """Minimum 10 cycles per Book IV S.IV.A.3.00."""
+        """Minimum 10 cycles for calibration enrollment."""
         return self.cycle_count >= 10
 
     def fingerprint(self) -> dict:
@@ -366,14 +318,12 @@ __all__ = [
     # Constants
     "PHI", "LAMBDA_LUX", "EPSILON_0", "GAMMA_MIN", "GAMMA_BLOOM", "GAMMA_ROOT",
     "ALPHA_DEFAULT", "PARITY_BTC", "PARITY_SATS", "CVF_RATE", "ROYALTY_RATE",
-    "GENESIS_FEE_USD", "TRANSFORMATION_DOMAINS", "Classification", "Verdict",
-    # EVA
-    "EVAInput", "EVAResult", "compute_gamma", "compute_ctu", "classify",
-    "compute_temporal_debt", "compute_attention", "evaluate_eva",
-    # Gates
-    "CausalAnchor", "GateResult", "GateEvaluation", "evaluate_gates",
+    "GENESIS_FEE_USD", "TRANSFORMATION_DOMAINS", "Classification", "CalibrationCheck",
+    # Coherence estimation
+    "CoherenceInput", "LocalCoherenceEstimate", "compute_gamma", "classify",
+    "compute_temporal_debt", "compute_attention", "estimate_local_coherence",
     # TKDF
     "TKDF_SALTS", "sha256_hex", "derive_tkdf256", "derive_seal_hash", "derive_intent_sig",
     # Welford
-    "WelfordState", "EVACalibration",
+    "WelfordState", "CoherenceCalibration",
 ]

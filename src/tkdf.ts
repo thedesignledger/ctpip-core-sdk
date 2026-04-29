@@ -1,11 +1,18 @@
 /**
  * TKDF-256 - Transformation Key Derivation Function
- * Source: The Symbolic Economy Part XII (SE-SPEC 2.1 Extension)
  *
- * Deterministic, provenance-bound key derivation function of CTP/IP.
- * Produces 256-bit causal keys from structured provenance inputs.
+ * Open public-standard cryptographic primitive used by CTP/IP to bind
+ * an artifact to its causal antecedents. Anyone can compute a TKDF-256
+ * key from public provenance inputs and verify it independently. Only
+ * the LUX Runtime Oracle PDA can produce a valid Seal under the algorithm.
+ *
+ * Algorithm specification: CTP/IP canonical R2 corpus (Book III).
+ * Historical R1 record at DOI 10.5281/zenodo.18795109.
  *
  * Nine canonical salt domains correspond to the nine transformation domains.
+ *
+ * Copyright 2025-2026 Erico Lisboa / Design Ledger PTY LTD
+ * License: Apache 2.0
  */
 
 import { TRANSFORMATION_DOMAINS, type TransformationDomain } from './constants';
@@ -69,6 +76,9 @@ async function sha256(message: string): Promise<string> {
  *
  * The key is deterministic: same inputs always produce the same key.
  * The key is provenance-bound: changing any input changes the key.
+ *
+ * Note: this produces verifiable algorithm output only. A valid Seal
+ * requires signing by the LUX Runtime Oracle PDA on Solana mainnet.
  */
 export async function deriveTKDF256(input: TKDFInput): Promise<string> {
   const salt = TKDF_SALTS[input.domain];
@@ -92,7 +102,9 @@ export async function deriveTKDF256(input: TKDFInput): Promise<string> {
  * Derive a seal hash from evidence and intent.
  *
  * Formula: SHA-256(evidenceHash + intentHash + gamma + timestamp + operatorId)
- * Source: Book III S.III.A.4.1 (Crystallisation)
+ *
+ * Note: this produces verifiable algorithm output only. A valid Seal
+ * requires on-chain crystallisation by the LUX Runtime Oracle PDA.
  */
 export async function deriveSealHash(
   evidenceHash: string,
@@ -116,7 +128,6 @@ export async function deriveSealHash(
  * Derive an IntentSig hash.
  *
  * For Phase 0 (Learning Mode): SHA-256(fingerprint + userId + tpnc)
- * Source: sealTransformation.js canonical implementation
  */
 export async function deriveIntentSig(
   fingerprint: string,

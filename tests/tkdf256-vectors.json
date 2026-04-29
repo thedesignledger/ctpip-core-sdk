@@ -1,0 +1,53 @@
+{
+  "description": "TKDF-256 test vectors for @ctpip/core reference implementation",
+  "generatedBy": "canonical algorithm (SHA-256 of salt|operatorHash|intentHash|evidenceHash|gamma|tpnc)",
+  "note": "These vectors verify the TKDF-256 reference implementation. The algorithm is an open public standard. Only the LUX Runtime Oracle PDA can produce a valid Seal under this algorithm.",
+  "vectors": [
+    {
+      "operatorHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "intentHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "evidenceHash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "gamma": 0.85,
+      "tpnc": 1714300000,
+      "domain": "Origin",
+      "expectedHash": "607435f29712f19f9c9c9b58df2d2abdf707e4f9e29a91541d1b43667bc8c204"
+    },
+    {
+      "operatorHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "intentHash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "evidenceHash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "gamma": 0.9497,
+      "tpnc": 1714400000,
+      "domain": "Creation",
+      "expectedHash": "2dc914fbe17797a5f5e24373c1c5ef2bb655b5902eb6a99a10f49643c3881965"
+    },
+    {
+      "operatorHash": "1111111111111111111111111111111111111111111111111111111111111111",
+      "intentHash": "2222222222222222222222222222222222222222222222222222222222222222",
+      "evidenceHash": "3333333333333333333333333333333333333333333333333333333333333333",
+      "gamma": 0.7,
+      "tpnc": 1714500000,
+      "domain": "Identity",
+      "expectedHash": "173d692b99c9a3ac650bd80f6e564e8def9f30c4c0f305ea9b841a45b8fcc526"
+    },
+    {
+      "operatorHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "intentHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "evidenceHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "gamma": 0.0,
+      "tpnc": 0,
+      "domain": "Work",
+      "expectedHash": "5545f88ee6ad65777e1a23e1c12801e63090808320b9dd380460ac275a49799a"
+    },
+    {
+      "operatorHash": "abababababababababababababababababababababababababababababababab",
+      "intentHash": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+      "evidenceHash": "efefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefef",
+      "gamma": 0.8187,
+      "tpnc": 1714600000,
+      "domain": "Competency",
+      "expectedHash": "f367ad73cd0afb760a77d5fb2766807ae99bbd496c89a5fce8765ce4393d7dad"
+    }
+  ]
+}
+
