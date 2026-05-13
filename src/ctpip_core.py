@@ -1,24 +1,23 @@
 """
-CTP/IP Core SDK - Python Implementation
+CTP/IP Core SDK - Python Implementation (Canonical TKDF-256)
 
-Portable physics engine for the Causal Time Protocol.
-Source: R11 Sealed Unified Corpus (DOI: 10.5281/zenodo.19362640)
-License: Apache 2.0
+License: CC-BY-NC 4.0
+Author: Erico Lisboa, Genesis Architect
+Entity: Design Ledger Pty Ltd, ABN 50 669 856 339
+Contact: designledger.co
+Commercial use: licensed through Design Ledger Pty Ltd.
 
-Contains:
-- Canonical constants (Book I-II)
-- LUX Runtime (coherence validation)
-- Guardian Gates (pre-validation enforcement)
-- TKDF-256 (causal key derivation)
-- Welford variance (calibration statistics)
+Canonical implementation of TKDF-256 for CTP/IP with byte-level concatenation
+and salt appended at end per foundational law T = Δ Σ ₀ Γ.
 """
 
 import hashlib
 import math
 import re
+import struct
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
+from typing import Optional, List
 
 # ===========================================================================
 # CANONICAL CONSTANTS (IMMUTABLE)
@@ -78,6 +77,128 @@ class Classification(Enum):
 class Verdict(Enum):
     VALID = "VALID"
     INVALID = "INVALID"
+
+
+# ===========================================================================
+# CANONICAL TKDF-256 IMPLEMENTATION
+# ===========================================================================
+
+# Canonical use-case salts for TKDF-256
+SALTS = {
+    "LOCK": "TKDF:LOCK",
+    "GOV": "TKDF:GOV", 
+    "DID": "TKDF:DID",
+    "LIN": "TKDF:LIN",
+    "ZKT": "TKDF:ZKT",
+    "FLX": "TKDF:FLX",
+    "SWP": "TKDF:SWP",
+    "HER": "TKDF:HER",
+    "DAT": "TKDF:DAT"
+}
+
+def float64_be(value: float) -> bytes:
+    """Convert number to IEEE-754 float64 big-endian bytes"""
+    return struct.pack(">d", value)
+
+def uint32_be(value: int) -> bytes:
+    """Convert number to uint32 big-endian bytes"""
+    return struct.pack(">I", value)
+
+def uint64_be(value: int) -> bytes:
+    """Convert number to uint64 big-endian bytes"""
+    return struct.pack(">Q", value)
+
+def tkdf256(inputs: List[bytes], salt: str) -> str:
+    """
+    Canonical TKDF-256 implementation
+    
+    Process: SHA-256(concat(inputs[0], inputs[1], ..., inputs[n], utf8(salt)))
+    
+    Args:
+        inputs: List of raw byte arrays to concatenate
+        salt: UTF-8 salt string appended at end
+    
+    Returns:
+        64-character hex string
+    """
+    # Calculate total length
+    salt_bytes = salt.encode('utf-8')
+    total_length = sum(len(input_bytes) for input_bytes in inputs) + len(salt_bytes)
+    
+    # Concatenate all inputs + salt
+    preimage = bytearray(total_length)
+    offset = 0
+    
+    for input_bytes in inputs:
+        preimage[offset:offset+len(input_bytes)] = input_bytes
+        offset += len(input_bytes)
+    
+    # Append salt at end
+    preimage[offset:offset+len(salt_bytes)] = salt_bytes
+    
+    # Compute SHA-256
+    return hashlib.sha256(preimage).hexdigest()
+
+def derive_heritage(evidence_hash_hex: str, anchor_hash_hex: str, gamma: float) -> str:
+    """
+    Derive heritage hash using canonical TKDF-256
+    
+    Used for Genesis Anchor and heritage chain verification.
+    
+    Args:
+        evidence_hash_hex: Evidence hash as hex string (64 chars)
+        anchor_hash_hex: Anchor hash as hex string (64 chars)  
+        gamma: Gamma value as float
+    
+    Returns:
+        64-character hex string
+    """
+    evidence_bytes = bytes.fromhex(evidence_hash_hex)
+    anchor_bytes = bytes.fromhex(anchor_hash_hex)
+    gamma_bytes = float64_be(gamma)
+    
+    return tkdf256([evidence_bytes, anchor_bytes, gamma_bytes], SALTS["HER"])
+
+def derive_seal(intent_sig_hex: str, evidence_hex: str, gamma: float, anchor_hex: str) -> str:
+    """
+    Derive seal hash using canonical TKDF-256
+    
+    Args:
+        intent_sig_hex: Intent signature hash as hex string
+        evidence_hex: Evidence hash as hex string
+        gamma: Gamma value as float
+        anchor_hex: Anchor hash as hex string
+    
+    Returns:
+        64-character hex string
+    """
+    intent_bytes = bytes.fromhex(intent_sig_hex)
+    evidence_bytes = bytes.fromhex(evidence_hex)
+    gamma_bytes = float64_be(gamma)
+    anchor_bytes = bytes.fromhex(anchor_hex)
+    
+    return tkdf256([intent_bytes, evidence_bytes, gamma_bytes, anchor_bytes], SALTS["DAT"])
+
+
+# ===========================================================================
+# CONFORMANCE TEST
+# ===========================================================================
+
+# Internal conformance test - Genesis Anchor reproduction
+GENESIS_EVIDENCE = "1ed80be5bdf906eb259b04e9331fe4ec0cb3bc01aed5dbfb0bf9016c521825ea"
+GENESIS_ANCHOR = "c68d5bb2a8759ea332f642c6758d82ebbf8f0d6826f4182103b9a81a2b8f5af8"
+GENESIS_GAMMA = 0.9497
+EXPECTED_GENESIS_HASH = "c8041da8bbde4afe00906e6d0efb64300f90d2755b92b7835a736281fb179136"
+
+# Run conformance test
+try:
+    result = derive_heritage(GENESIS_EVIDENCE, GENESIS_ANCHOR, GENESIS_GAMMA)
+    if result == EXPECTED_GENESIS_HASH:
+        print("Genesis Anchor conformance: PASS")
+    else:
+        print(f"Genesis Anchor conformance: FAIL: got {result}")
+except Exception as err:
+    print(f"Genesis Anchor conformance test error: {err}")
 
 
 # ===========================================================================
@@ -260,8 +381,7 @@ def evaluate_gates(
 
 
 # ===========================================================================
-# TKDF-256
-# Source: The Symbolic Economy Part XII
+# LEGACY TKDF (DEPRECATED - use canonical tkdf256 instead)
 # ===========================================================================
 
 TKDF_SALTS = {d: f"CTPIP:TKDF256:{d.upper()}:V1" for d in TRANSFORMATION_DOMAINS}
@@ -367,12 +487,14 @@ __all__ = [
     "PHI", "LAMBDA_LUX", "EPSILON_0", "GAMMA_MIN", "GAMMA_BLOOM", "GAMMA_ROOT",
     "ALPHA_DEFAULT", "PARITY_BTC", "PARITY_SATS", "CVF_RATE", "ROYALTY_RATE",
     "GENESIS_FEE_USD", "TRANSFORMATION_DOMAINS", "Classification", "Verdict",
+    # Canonical TKDF-256
+    "SALTS", "float64_be", "uint32_be", "uint64_be", "tkdf256", "derive_heritage", "derive_seal",
     # EVA
     "EVAInput", "EVAResult", "compute_gamma", "compute_ctu", "classify",
     "compute_temporal_debt", "compute_attention", "evaluate_eva",
     # Gates
     "CausalAnchor", "GateResult", "GateEvaluation", "evaluate_gates",
-    # TKDF
+    # Legacy TKDF (deprecated)
     "TKDF_SALTS", "sha256_hex", "derive_tkdf256", "derive_seal_hash", "derive_intent_sig",
     # Welford
     "WelfordState", "EVACalibration",
