@@ -10,3 +10,5 @@ oracle-keypair.json
 *.pem
 *.secret
 .DS_Store
+__pycache__/
+*.pyc
