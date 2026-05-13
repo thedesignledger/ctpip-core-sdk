@@ -1,128 +1,131 @@
 /**
- * TKDF-256 - Transformation Key Derivation Function
- * Source: The Symbolic Economy Part XII (SE-SPEC 2.1 Extension)
- *
- * Deterministic, provenance-bound key derivation function of CTP/IP.
- * Produces 256-bit causal keys from structured provenance inputs.
- *
- * Nine canonical salt domains correspond to the nine transformation domains.
+ * TKDF-256 - Transformation Key Derivation Function (Canonical Reference)
+ * 
+ * License: CC-BY-NC 4.0
+ * Author: Erico Lisboa, Genesis Architect
+ * Entity: Design Ledger Pty Ltd, ABN 50 669 856 339
+ * Contact: designledger.co
+ * Commercial use: licensed through Design Ledger Pty Ltd.
+ * 
+ * Canonical implementation of TKDF-256 for CTP/IP.
+ * Deterministic key derivation with byte-level concatenation and
+ * salt appended at end per foundational law T = Δ Σ ₀ Γ.
  */
 
-import { TRANSFORMATION_DOMAINS, type TransformationDomain } from './constants';
+import { createHash } from 'crypto';
 
-/** Canonical salts for the nine transformation domains */
-export const TKDF_SALTS: Record<TransformationDomain, string> = {
-  Origin: 'CTPIP:TKDF256:ORIGIN:V1',
-  Creation: 'CTPIP:TKDF256:CREATION:V1',
-  Identity: 'CTPIP:TKDF256:IDENTITY:V1',
-  Work: 'CTPIP:TKDF256:WORK:V1',
-  Competency: 'CTPIP:TKDF256:COMPETENCY:V1',
-  Commitment: 'CTPIP:TKDF256:COMMITMENT:V1',
-  Exchange: 'CTPIP:TKDF256:EXCHANGE:V1',
-  Record: 'CTPIP:TKDF256:RECORD:V1',
-  Recovery: 'CTPIP:TKDF256:RECOVERY:V1',
-};
+/** Canonical use-case salts for TKDF-256 */
+export const SALTS = {
+  LOCK: "TKDF:LOCK",
+  GOV: "TKDF:GOV", 
+  DID: "TKDF:DID",
+  LIN: "TKDF:LIN",
+  ZKT: "TKDF:ZKT",
+  FLX: "TKDF:FLX",
+  SWP: "TKDF:SWP",
+  HER: "TKDF:HER",
+  DAT: "TKDF:DAT"
+} as const;
 
-/** TKDF input schema */
-export interface TKDFInput {
-  /** Operator identity hash */
-  operatorHash: string;
-  /** Intent signature hash */
-  intentHash: string;
-  /** Evidence hash */
-  evidenceHash: string;
-  /** Computed Gamma value */
-  gamma: number;
-  /** TPNC timestamp (protocol native clock) */
-  tpnc: number;
-  /** Transformation domain */
-  domain: TransformationDomain;
+/**
+ * Convert number to IEEE-754 float64 big-endian bytes
+ */
+export function float64BE(value: number): Uint8Array {
+  const buffer = new ArrayBuffer(8);
+  new DataView(buffer).setFloat64(0, value, false); // false = big-endian
+  return new Uint8Array(buffer);
 }
 
 /**
- * Compute SHA-256 hash (browser + Node.js compatible).
- * Returns lowercase hex string (64 chars).
+ * Convert number to uint32 big-endian bytes
  */
-async function sha256(message: string): Promise<string> {
-  if (typeof globalThis.crypto !== 'undefined' && globalThis.crypto.subtle) {
-    // Browser / Deno / Node 20+
-    const encoder = new TextEncoder();
-    const data = encoder.encode(message);
-    const hashBuffer = await globalThis.crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+export function uint32BE(value: number): Uint8Array {
+  const buffer = new ArrayBuffer(4);
+  new DataView(buffer).setUint32(0, value, false); // false = big-endian
+  return new Uint8Array(buffer);
+}
+
+/**
+ * Convert number to uint64 big-endian bytes
+ */
+export function uint64BE(value: number): Uint8Array {
+  const buffer = new ArrayBuffer(8);
+  new DataView(buffer).setBigUint64(0, BigInt(value), false); // false = big-endian
+  return new Uint8Array(buffer);
+}
+
+/**
+ * Canonical TKDF-256 implementation
+ * 
+ * Process: SHA-256(concat(inputs[0], inputs[1], ..., inputs[n], utf8(salt)))
+ * 
+ * @param inputs - Array of raw byte arrays to concatenate
+ * @param salt - UTF-8 salt string appended at end
+ * @returns 64-character hex string
+ */
+export function tkdf256(inputs: Uint8Array[], salt: string): string {
+  // Calculate total length
+  const saltBytes = new TextEncoder().encode(salt);
+  const totalLength = inputs.reduce((sum, input) => sum + input.length, 0) + saltBytes.length;
+  
+  // Concatenate all inputs + salt
+  const preimage = new Uint8Array(totalLength);
+  let offset = 0;
+  
+  for (const input of inputs) {
+    preimage.set(input, offset);
+    offset += input.length;
   }
-
-  // Node.js fallback
-  const { createHash } = await import('crypto');
-  return createHash('sha256').update(message).digest('hex');
+  
+  // Append salt at end
+  preimage.set(saltBytes, offset);
+  
+  // Compute SHA-256
+  const hash = createHash('sha256');
+  hash.update(Buffer.from(preimage));
+  return hash.digest('hex');
 }
 
 /**
- * Derive a TKDF-256 causal key.
- *
- * Process:
- * 1. Select domain salt
- * 2. Concatenate: salt | operatorHash | intentHash | evidenceHash | gamma | tpnc
- * 3. SHA-256 the concatenation
- * 4. Return 256-bit hex key
- *
- * The key is deterministic: same inputs always produce the same key.
- * The key is provenance-bound: changing any input changes the key.
+ * Derive heritage hash using canonical TKDF-256
+ * 
+ * Used for Genesis Anchor and heritage chain verification.
+ * 
+ * @param evidenceHashHex - Evidence hash as hex string (64 chars)
+ * @param anchorHashHex - Anchor hash as hex string (64 chars)  
+ * @param gamma - Gamma value as float
+ * @returns 64-character hex string
  */
-export async function deriveTKDF256(input: TKDFInput): Promise<string> {
-  const salt = TKDF_SALTS[input.domain];
-  if (!salt) {
-    throw new Error(`Unknown transformation domain: ${input.domain}`);
+export function deriveHeritage(
+  evidenceHashHex: string,
+  anchorHashHex: string,
+  gamma: number
+): string {
+  const evidenceBytes = new Uint8Array(
+    evidenceHashHex.match(/.{2}/g)!.map(hex => parseInt(hex, 16))
+  );
+  const anchorBytes = new Uint8Array(
+    anchorHashHex.match(/.{2}/g)!.map(hex => parseInt(hex, 16))
+  );
+  const gammaBytes = float64BE(gamma);
+  
+  return tkdf256([evidenceBytes, anchorBytes, gammaBytes], SALTS.HER);
+}
+
+// Internal conformance test - Genesis Anchor reproduction
+const GENESIS_EVIDENCE = "1ed80be5bdf906eb259b04e9331fe4ec0cb3bc01aed5dbfb0bf9016c521825ea";
+const GENESIS_ANCHOR = "c68d5bb2a8759ea332f642c6758d82ebbf8f0d6826f4182103b9a81a2b8f5af8";
+const GENESIS_GAMMA = 0.9497;
+const EXPECTED_GENESIS_HASH = "c8041da8bbde4afe00906e6d0efb64300f90d2755b92b7835a736281fb179136";
+
+// Run conformance test
+try {
+  const result = deriveHeritage(GENESIS_EVIDENCE, GENESIS_ANCHOR, GENESIS_GAMMA);
+  if (result === EXPECTED_GENESIS_HASH) {
+    console.log("Genesis Anchor conformance: PASS");
+  } else {
+    console.error(`Genesis Anchor conformance: FAIL: got ${result}`);
   }
-
-  const preimage = [
-    salt,
-    input.operatorHash,
-    input.intentHash,
-    input.evidenceHash,
-    input.gamma.toFixed(6),
-    input.tpnc.toString(),
-  ].join('|');
-
-  return sha256(preimage);
-}
-
-/**
- * Derive a seal hash from evidence and intent.
- *
- * Formula: SHA-256(evidenceHash + intentHash + gamma + timestamp + operatorId)
- * Source: Book III S.III.A.4.1 (Crystallisation)
- */
-export async function deriveSealHash(
-  evidenceHash: string,
-  intentHash: string,
-  gamma: number,
-  timestamp: string,
-  operatorId: string
-): Promise<string> {
-  const preimage = [
-    evidenceHash,
-    intentHash,
-    gamma.toFixed(6),
-    timestamp,
-    operatorId,
-  ].join('');
-
-  return sha256(preimage);
-}
-
-/**
- * Derive an IntentSig hash.
- *
- * For Phase 0 (Learning Mode): SHA-256(fingerprint + userId + tpnc)
- * Source: sealTransformation.js canonical implementation
- */
-export async function deriveIntentSig(
-  fingerprint: string,
-  userId: string,
-  tpnc: number
-): Promise<string> {
-  const preimage = [fingerprint, userId, tpnc.toString()].join('');
-  return sha256(preimage);
+} catch (err) {
+  console.error("Genesis Anchor conformance test error:", err);
 }
