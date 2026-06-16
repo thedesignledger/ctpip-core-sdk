@@ -45,12 +45,6 @@ GAMMA_ROOT = 0.95
 ALPHA_DEFAULT = 8.0
 """Default ALPHA for attention computation"""
 
-PARITY_BTC = 0.021
-"""Parity Law: 1 FLUX = 0.021 BTC"""
-
-PARITY_SATS = 2_100_000
-"""Parity in satoshis"""
-
 CVF_RATE = 0.095
 """Coherence Value Fee rate"""
 
@@ -485,7 +479,7 @@ class EVACalibration:
 __all__ = [
     # Constants
     "PHI", "LAMBDA_LUX", "EPSILON_0", "GAMMA_MIN", "GAMMA_BLOOM", "GAMMA_ROOT",
-    "ALPHA_DEFAULT", "PARITY_BTC", "PARITY_SATS", "CVF_RATE", "ROYALTY_RATE",
+    "ALPHA_DEFAULT", "CVF_RATE", "ROYALTY_RATE",
     "GENESIS_FEE_USD", "TRANSFORMATION_DOMAINS", "Classification", "Verdict",
     # Canonical TKDF-256
     "SALTS", "float64_be", "uint32_be", "uint64_be", "tkdf256", "derive_heritage", "derive_seal",

@@ -1,6 +1,6 @@
 /**
  * CTP/IP Canonical Constants
- * Source: R11 Sealed Unified Corpus (DOI: 10.5281/zenodo.19362640)
+ * Source: CTP/IP canonical corpus (sealed, DOI: 10.5281/zenodo.20652928)
  * Book I S.I.6, Book II S.II.2
  *
  * These values are IMMUTABLE. Do not modify.
@@ -28,12 +28,6 @@ export const GAMMA_ROOT = 0.95;
 
 /** Default ALPHA for attention computation */
 export const ALPHA_DEFAULT = 8.0;
-
-/** Parity Law: 1 FLUX = 0.021 BTC (immutable structural constant) */
-export const PARITY_BTC = 0.021;
-
-/** Parity in satoshis */
-export const PARITY_SATS = 2_100_000;
 
 /** CVF rate */
 export const CVF_RATE = 0.095;

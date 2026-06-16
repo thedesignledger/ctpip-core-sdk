@@ -10,7 +10,7 @@
  * - TKDF-256 (causal key derivation)
  * - Welford variance (calibration statistics)
  *
- * Source: R11 Sealed Unified Corpus (DOI: 10.5281/zenodo.19362640)
+ * Source: CTP/IP canonical corpus (sealed, DOI: 10.5281/zenodo.20652928)
  * License: Apache 2.0
  *
  * @module @ctpip/core
@@ -25,8 +25,6 @@ export {
   GAMMA_BLOOM,
   GAMMA_ROOT,
   ALPHA_DEFAULT,
-  PARITY_BTC,
-  PARITY_SATS,
   CVF_RATE,
   ROYALTY_RATE,
   GENESIS_FEE_USD,
