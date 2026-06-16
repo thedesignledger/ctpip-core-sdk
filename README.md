@@ -2,13 +2,13 @@
 
 Portable physics engine for the **Causal Time Protocol / Intentional Processing (CTP/IP)**.
 
-This SDK implements the canonical protocol specification from the R11 Sealed Unified Corpus (DOI: 10.5281/zenodo.19362640). Available in TypeScript and Python.
+This SDK implements the canonical protocol specification from the CTP/IP canonical corpus (sealed, DOI [10.5281/zenodo.20652928](https://doi.org/10.5281/zenodo.20652928)). Available in TypeScript and Python.
 
 ## What This Contains
 
-| Module | Purpose | R11 Reference |
-|:-------|:--------|:-------------|
-| **Constants** | PHI, thresholds, Parity Law, domains | Book I S.I.6, Book II S.II.2 |
+| Module | Purpose | Corpus reference |
+|:-------|:--------|:-----------------|
+| **Constants** | PHI, thresholds, domains | Book I S.I.6, Book II S.II.2 |
 | **LUX Runtime** | coherence computation, CTU generation, classification | Book II S.II.6, Book III S.III.A.3.3 |
 | **Guardian Gates** | Five-gate pre-validation enforcement | Book III S.III.A.3.4 |
 | **TKDF-256** | Causal key derivation from provenance inputs | SE-SPEC 2.1 Part XII |
@@ -85,14 +85,13 @@ Time is generated only when irreversible transformation occurs under declared in
 | GAMMA_BLOOM | 0.8187 | BLOOM coherence threshold (Landauer) |
 | GAMMA_ROOT | 0.95 | ROOT coherence threshold (relativistic) |
 | EPSILON_0 | 1.0 | Stability constant |
-| PARITY_BTC | 0.021 | 1 FLUX = 0.021 BTC |
+| w_AI | 0 | AI causal weight (immutable) |
 
-## Level 0 Invariants (Never Violate)
+## Three Invariants (Never Violate)
 
-1. **EVA Lock** - No CTU without EVA validation
-2. **Anti-Circularity** - No system validates its own output
-3. **Binary Validation** - VALID or INVALID only
-4. **AI Boundary** - w_AI = 0 (AI earns zero CTU weight)
+1. **CTU non-tokenisation** - CTU is non-transferable, consumable by origin only
+2. **w_AI = 0** - AI earns zero CTU weight
+3. **One-Way Seal** - Seals are irreversible proof of transformation
 
 ## License
 
@@ -101,8 +100,8 @@ Apache 2.0
 ## Links
 
 - Protocol: [designledger.co](https://designledger.co)
-- Corpus: [DOI 10.5281/zenodo.19362640](https://doi.org/10.5281/zenodo.19362640)
+- Corpus: [DOI 10.5281/zenodo.20652928](https://doi.org/10.5281/zenodo.20652928)
 - Standards: [time.foundation](https://time.foundation)
 - Source: [github.com/thedesignledger](https://github.com/thedesignledger)
 
-Copyright 2025-2026 Érico Lisboa / Design Ledger PTY LTD (ABN 50 669 856 339)
+Copyright 2025-2026 Erico Lisboa / Design Ledger PTY LTD (ABN 50 669 856 339)
