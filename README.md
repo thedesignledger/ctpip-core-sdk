@@ -26,7 +26,7 @@
 
 Portable physics engine for the **Causal Time Protocol / Intentional Processing (CTP/IP)**.
 
-This SDK implements the canonical protocol specification from the CTP/IP canonical corpus (sealed, DOI [10.5281/zenodo.21290135](https://doi.org/10.5281/zenodo.21290135)). Available in TypeScript and Python.
+This SDK implements the canonical protocol specification from the CTP/IP canonical corpus (sealed, DOI [10.5281/zenodo.21950371](https://doi.org/10.5281/zenodo.21950371)). Available in TypeScript and Python.
 
 ## What This Contains
 
@@ -124,7 +124,7 @@ Apache 2.0
 ## Links
 
 - Protocol: [designledger.co](https://designledger.co)
-- Corpus: [DOI 10.5281/zenodo.21290135](https://doi.org/10.5281/zenodo.21290135)
+- Corpus: [DOI 10.5281/zenodo.21950371](https://doi.org/10.5281/zenodo.21950371)
 - Standards: [time.foundation](https://time.foundation)
 - Source: [github.com/thedesignledger](https://github.com/thedesignledger)
 
