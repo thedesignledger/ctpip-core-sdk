@@ -1,6 +1,6 @@
 /**
  * CTP/IP Canonical Constants
- * Source: CTP/IP canonical corpus (sealed, DOI: 10.5281/zenodo.21290135)
+ * Source: CTP/IP canonical corpus (sealed, DOI: 10.5281/zenodo.21950371)
  * Book I S.I.6, Book II S.II.2
  *
  * These values are IMMUTABLE. Do not modify.

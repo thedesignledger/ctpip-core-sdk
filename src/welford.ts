@@ -1,6 +1,6 @@
 /**
  * Welford Online Variance - Calibration Statistics
- * Source: R11 Book IV S.IV.A.3.00 (10-Cycle Calibration Enrollment)
+ * Source: Corpus D1 Book IV S.IV.A.3.00 (10-Cycle Calibration Enrollment)
  *
  * Numerically stable online algorithm for computing running
  * mean and variance. Used to establish operator's behavioural

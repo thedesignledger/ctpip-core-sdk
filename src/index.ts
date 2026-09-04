@@ -10,7 +10,7 @@
  * - TKDF-256 (causal key derivation)
  * - Welford variance (calibration statistics)
  *
- * Source: CTP/IP canonical corpus (sealed, DOI: 10.5281/zenodo.21290135)
+ * Source: CTP/IP canonical corpus (sealed, DOI: 10.5281/zenodo.21950371)
  * License: Apache 2.0
  *
  * @module @ctpip/core

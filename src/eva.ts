@@ -1,6 +1,6 @@
 /**
  * LUX Runtime - Coherence Validation
- * Source: R11 Book II S.II.6, Book III S.III.A.3.3
+ * Source: Corpus D1 Book II S.II.6, Book III S.III.A.3.3
  *
  * The LUX Runtime is:
  *   - Deterministic (same inputs always produce same outputs)

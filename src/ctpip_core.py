@@ -21,7 +21,7 @@ from typing import Optional, List
 
 # ===========================================================================
 # CANONICAL CONSTANTS (IMMUTABLE)
-# Source: R11 Book I S.I.6, Book II S.II.2
+# Source: Corpus D1 Book I S.I.6, Book II S.II.2
 # ===========================================================================
 
 PHI = 1.618033988749895

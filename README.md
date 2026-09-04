@@ -19,7 +19,7 @@
 
 2020-2026 | Powered by CTP/IP: Causal Time Protocol / Intentional Processing
        Architect: [E.L] - [ ΔΣ₀Γ = DSZG  Delta Sigma Zero Gamma ] Coherence Networks
-                    DOI 10.5281/zenodo.21290135 | contact@designledger.co
+                    DOI 10.5281/zenodo.21950371 | contact@designledger.co
 ```
 
 # @ctpip/core

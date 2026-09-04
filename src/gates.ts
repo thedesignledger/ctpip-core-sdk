@@ -1,6 +1,6 @@
 /**
  * Five Guardian Gates - Pre-Validation Enforcement
- * Source: R11 Book III S.III.A.3.4
+ * Source: Corpus D1 Book III S.III.A.3.4
  *
  * All five gates must pass. A single gate failure rejects the seal.
  * No bypass, no override, no administrative exception.
